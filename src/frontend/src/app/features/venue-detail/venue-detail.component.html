@@ -1,0 +1,134 @@
+<div class="min-h-screen bg-[#0f172a] text-white font-sans selection:bg-[#4ade80] selection:text-[#0f172a]">
+
+    <div class="max-w-[1600px] mx-auto px-6 py-12">
+        <!-- Header Navigation -->
+        <header
+            class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 border-b border-white/10 pb-8">
+            <div>
+                <a routerLink="/"
+                    class="inline-flex items-center text-sm font-bold text-gray-400 hover:text-[#4ade80] mb-6 transition-colors uppercase tracking-wider">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Volver
+                </a>
+                <h1 class="text-5xl md:text-7xl font-black text-white uppercase tracking-tight leading-none mb-2">
+                    {{ venueName() ? venueName() : 'Cargando...' }}
+                </h1>
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                    <p class="text-sm font-mono text-gray-400 uppercase">Live</p>
+                </div>
+            </div>
+
+            <!-- Date Filter -->
+            <div class="w-full md:w-auto">
+                <label class="block text-xs font-black text-[#4ade80] uppercase tracking-widest mb-3">Fecha</label>
+                <div class="relative group">
+                    <div
+                        class="absolute -inset-0.5 bg-gradient-to-r from-[#4ade80] to-blue-500 rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500">
+                    </div>
+                    <input type="date" [ngModel]="selectedDate()" (change)="onDateChange($event)"
+                        class="relative w-full bg-[#1e293b] border border-white/10 text-white text-xl font-bold rounded-xl focus:outline-none focus:border-[#4ade80] focus:ring-1 focus:ring-[#4ade80] block pl-12 pr-6 py-4 uppercase tracking-wider cursor-pointer hover:bg-[#263345] transition-colors"
+                        style="color-scheme: dark;">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div *ngIf="loading()" class="py-20 text-center animate-pulse">
+            <div class="text-2xl font-black text-[#4ade80] uppercase">Cargando Partidos...</div>
+        </div>
+
+        <div *ngIf="!loading() && !error() && matches().length === 0"
+            class="flex flex-col items-center justify-center py-32 bg-[#1e293b]/30 rounded-3xl border border-dashed border-gray-700">
+            <div class="text-4xl mb-4">📹</div>
+            <h3 class="text-2xl font-bold text-white mb-2 uppercase">Sin Partidos</h3>
+            <p class="text-gray-400">No hay grabaciones disponibles para esta fecha.</p>
+        </div>
+
+        <div *ngIf="!loading() && matches().length > 0"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+
+            <div *ngFor="let match of matches()"
+                class="group relative bg-[#1e293b] rounded-2xl overflow-hidden border-2 border-transparent hover:border-[#4ade80] transition-all duration-300 hover:-translate-y-1 shadow-xl">
+
+                <!-- Thumbnail -->
+                <div class="aspect-video bg-black relative">
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#1e293b] to-transparent opacity-60"></div>
+
+                    <!-- Video State: Processing -->
+                    <div *ngIf="match.statusString === 'Processing'"
+                        class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                        <div
+                            class="w-12 h-12 border-4 border-[#4ade80] rounded-full border-t-transparent animate-spin mb-2">
+                        </div>
+                        <span
+                            class="text-[#4ade80] font-bold text-xs uppercase tracking-widest animate-pulse">Procesando</span>
+                    </div>
+
+                    <!-- Video State: Scheduled -->
+                    <div *ngIf="match.statusString === 'Scheduled'"
+                        class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80">
+                        <span class="text-gray-500 font-bold text-xs uppercase tracking-widest">Próximamente</span>
+                    </div>
+
+                    <!-- Video State: Ready -->
+                    <a *ngIf="match.statusString === 'Ready'" [routerLink]="['/player', match.id]"
+                        class="absolute inset-0 flex items-center justify-center group-hover:bg-black/20 transition-all cursor-pointer z-10">
+                        <div
+                            class="w-14 h-14 rounded-full bg-[#4ade80] text-[#0f172a] flex items-center justify-center transform scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-110 transition-all shadow-lg shadow-[#4ade80]/40 duration-300">
+                            <svg class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+                            </svg>
+                        </div>
+                    </a>
+
+                    <!-- Badges -->
+                    <div class="absolute top-3 right-3 z-20">
+                        <span [ngClass]="{
+                  'bg-[#4ade80] text-[#0f172a] shadow-[#4ade80]/20': match.statusString === 'Ready',
+                  'bg-yellow-500 text-black': match.statusString === 'Processing',
+                  'bg-blue-600 text-white': match.statusString === 'Scheduled',
+                  'bg-red-500 text-white': match.statusString === 'Error'
+             }" class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-lg">
+                            {{match.statusString}}
+                        </span>
+                    </div>
+
+                    <div
+                        class="absolute bottom-3 left-3 z-20 bg-black/80 backdrop-blur-md px-2 py-1 rounded text-xs font-mono font-bold text-white border border-white/10">
+                        {{match.startTime | date:'HH:mm'}}
+                    </div>
+                </div>
+
+                <!-- Meta -->
+                <div class="p-5 relative z-20">
+                    <h3
+                        class="text-lg font-bold text-white leading-tight mb-4 group-hover:text-[#4ade80] transition-colors truncate">
+                        {{match.courtName}}
+                    </h3>
+
+                    <a *ngIf="match.statusString === 'Ready'" [routerLink]="['/player', match.id]"
+                        class="flex items-center justify-center w-full py-3 rounded-xl bg-white/5 border border-white/10 text-sm font-bold text-white hover:bg-[#4ade80] hover:text-[#0f172a] transition-all group-hover:border-[#4ade80]">
+                        VER VIDEO
+                    </a>
+                    <button *ngIf="match.statusString !== 'Ready'" disabled
+                        class="flex items-center justify-center w-full py-3 rounded-xl bg-transparent border border-dashed border-gray-700 text-sm font-bold text-gray-500 cursor-not-allowed">
+                        NO DISPONIBLE
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

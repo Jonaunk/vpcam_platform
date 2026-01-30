@@ -1,0 +1,40 @@
+# === .NET / C# (Proyectos: Api, Core, Worker) ===
+# Ignora bin y obj en cualquier profundidad
+# Fuerza bruta para binarios en cualquier nivel
+**/bin/
+**/obj/
+**\bin\
+**\obj\
+bin/
+obj/
+# Archivos de usuario y estado de VS
+**/*.user
+**/*.userosscache
+**/*.sln.docstates
+**/.vs/
+**/launchSettings.json
+
+# === Angular / Node (VPCAM Frontend) ===
+# Ignora dependencias y archivos de build en cualquier subcarpeta frontend
+**/node_modules/
+**/.angular/
+**/dist/
+**/npm-debug.log*
+
+# === Docker & Database ===
+docker-compose.override.yml
+**/sqlvolume/
+**/*.db
+**/*.log
+
+# === IDE & OS ===
+.vscode/
+.history/
+.DS_Store
+Thumbs.db
+
+# === Secrets (Crítico para Dahua Cloud / DB) ===
+# No subir credenciales locales
+**/appsettings.Development.json
+**/appsettings.Local.json
+.env
